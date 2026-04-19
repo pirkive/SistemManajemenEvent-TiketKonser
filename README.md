@@ -1,11 +1,11 @@
 Sistem E-Ticket "ngonser yuk!"
 
-1. Deskripsi Umum
+A. Deskripsi Umum
 "ngonser yuk!" adalah aplikasi sistem manajemen event dan pemesanan tiket konser berbasis *desktop*. Aplikasi ini dibangun menggunakan antarmuka grafis (GUI) Java Swing dan terintegrasi dengan database MySQL. Sistem ini memisahkan hak akses antara Admin (untuk mengelola data event) dan Pembeli (untuk memesan tiket).
 
 
 
-2. Teknologi yang Digunakan
+B. Teknologi yang Digunakan
 * Bahasa Pemrograman: Java (JDK 8 atau lebih baru)
 * Antarmuka Pengguna (GUI): Java Swing & AWT
 * Database: MySQL
@@ -14,7 +14,7 @@ Sistem E-Ticket "ngonser yuk!"
 
 
 
-3. Struktur Direktori Kode (Arsitektur MVC)
+C. Struktur Direktori Kode (Arsitektur MVC)
 Aplikasi ini menggunakan pendekatan arsitektur *Model-View-Controller/Service* (MVC) agar kode rapi dan modular:
 * `model/`
     * `User.java`: Representasi data pengguna (id, username, role).
@@ -28,24 +28,24 @@ Aplikasi ini menggunakan pendekatan arsitektur *Model-View-Controller/Service* (
 
 
 
-4. Fitur Utama
-A. Fitur Umum (Autentikasi)
+D. Fitur Utama
+1. Fitur Umum (Autentikasi)
 * Login: Pengguna masuk menggunakan username dan password. Sistem akan mengarahkan ke dashboard yang sesuai dengan *role* (Admin/Pembeli).
 * Register: Pengguna baru dapat mendaftarkan akun. Secara *default*, akun baru akan mendapatkan *role* "Pembeli".
 
-B. Dashboard Admin (Manajemen Event)
+2. Dashboard Admin (Manajemen Event)
 * Read: Melihat daftar event konser beserta ID, sisa stok, dan harga dasar di dalam tabel.
 * Create: Menambahkan data event konser baru ke dalam sistem.
 * Update: Mengubah detail event (seperti menambah kuota tiket atau mengubah harga).
 * Delete: Menghapus data event dari sistem.
 
-C. Dashboard Pembeli (Pemesanan Tiket)
+3. Dashboard Pembeli (Pemesanan Tiket)
 * Katalog Event: Melihat daftar konser yang tersedia.
 * Sistem Transaksi: Fitur pembelian tiket dengan alur yang disesuaikan dengan standar *Payment Gateway*.
 
 
 
-5. Alur Pembelian Tiket (Sesuai Activity Diagram)
+E. Alur Pembelian Tiket (Sesuai Activity Diagram)
 Proses pembelian dirancang agar interaktif dan meminimalisir *error* dari pengguna, dengan alur sebagai berikut:
 * Pilih Event: Pembeli memilih konser dari tabel katalog.
 * Validasi Stok (Sistem): Sistem secara otomatis mengecek apakah kuota tiket masih lebih dari 0. Jika habis, proses dihentikan dengan peringatan.
@@ -57,7 +57,7 @@ Proses pembelian dirancang agar interaktif dan meminimalisir *error* dari penggu
    
 
 
-6. Panduan Instalasi dan Konfigurasi
+F. Panduan Instalasi dan Konfigurasi
 Untuk menjalankan aplikasi ini di komputer lokal, ikuti langkah-langkah berikut:
 Langkah 1: Setup Database MySQL
 * Buka XAMPP/WAMP dan jalankan service MySQL.
