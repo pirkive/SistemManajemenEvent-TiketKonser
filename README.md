@@ -47,23 +47,23 @@ C. Dashboard Pembeli (Pemesanan Tiket)
 
 5. Alur Pembelian Tiket (Sesuai Activity Diagram)
 Proses pembelian dirancang agar interaktif dan meminimalisir *error* dari pengguna, dengan alur sebagai berikut:
-1.  Pilih Event: Pembeli memilih konser dari tabel katalog.
-2.  Validasi Stok (Sistem): Sistem secara otomatis mengecek apakah kuota tiket masih lebih dari 0. Jika habis, proses dihentikan dengan peringatan.
-3.  Input Data Pemesanan: Pembeli memasukkan jumlah tiket yang ingin dibeli. Sistem memvalidasi agar input tidak melebihi stok yang ada.
-4.  Pilih Metode Pembayaran: Pembeli memilih metode pembayaran (*Transfer Bank, QRIS, E-Wallet, Kartu Kredit*) melalui *dropdown*.
-5.  Otorisasi Payment Gateway: Sistem melakukan simulasi persetujuan pembayaran.
-6.  Update Data (Sistem): Jika pembayaran berhasil, sistem akan memanggil `TransactionService` untuk mengurangi stok tiket di database.
-7.  Generate E-Tiket & QR Code: Sistem membuat kode struk unik (kombinasi "TIX", username, dan *timestamp*) lalu mengunduh gambar QR Code dari Web API untuk ditampilkan pada resi digital.
+* Pilih Event: Pembeli memilih konser dari tabel katalog.
+* Validasi Stok (Sistem): Sistem secara otomatis mengecek apakah kuota tiket masih lebih dari 0. Jika habis, proses dihentikan dengan peringatan.
+* Input Data Pemesanan: Pembeli memasukkan jumlah tiket yang ingin dibeli. Sistem memvalidasi agar input tidak melebihi stok yang ada.
+* Pilih Metode Pembayaran: Pembeli memilih metode pembayaran (*Transfer Bank, QRIS, E-Wallet, Kartu Kredit*) melalui *dropdown*.
+* Otorisasi Payment Gateway: Sistem melakukan simulasi persetujuan pembayaran.
+* Update Data (Sistem): Jika pembayaran berhasil, sistem akan memanggil `TransactionService` untuk mengurangi stok tiket di database.
+* Generate E-Tiket & QR Code: Sistem membuat kode struk unik (kombinasi "TIX", username, dan *timestamp*) lalu mengunduh gambar QR Code dari Web API untuk ditampilkan pada resi digital.
    
 
 
 6. Panduan Instalasi dan Konfigurasi
 Untuk menjalankan aplikasi ini di komputer lokal, ikuti langkah-langkah berikut:
 Langkah 1: Setup Database MySQL
-1. Buka XAMPP/WAMP dan jalankan service MySQL.
-2. Buat database baru (misal: `eticket_db`).
-3. Buat tabel `users` (kolom: user_id, username, password, role) dan tabel `events` (kolom: event_id, title, quota, price).
-4. Pastikan kredensial di `DatabaseConfig.java` (URL, User, Password) sudah sesuai dengan database lokalmu.
+* Buka XAMPP/WAMP dan jalankan service MySQL.
+* Buat database baru (misal: `eticket_db`).
+* Buat tabel `users` (kolom: user_id, username, password, role) dan tabel `events` (kolom: event_id, title, quota, price).
+* Pastikan kredensial di `DatabaseConfig.java` (URL, User, Password) sudah sesuai dengan database lokalmu.
 
 Langkah 2: Setup IDE (NetBeans/IntelliJ/Eclipse)
 1. *Clone* atau *import* folder project ini ke dalam IDE.
