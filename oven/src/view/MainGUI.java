@@ -423,7 +423,11 @@ public class MainGUI {
                             "Metode        : %s\n" +
                             "Total         : Rp %,.0f\n" +
                             "====================================\n" +
-                            "Lunas! Tunjukkan QR ke panitia gate.",
+                            "Lunas! Tunjukkan QR ke panitia gate.\n"+
+                            "Tiket yang sudah dibeli tidak dapat \n" +
+                            "   ditukar atau dikembalikan.\n" +
+                            "       ENJOY THE SHOW.\n" +
+                            "======================================\n",
                             ticketCode, evt.getTitle(), qty, selectedPayment, totalTagihan
                         );
                         
