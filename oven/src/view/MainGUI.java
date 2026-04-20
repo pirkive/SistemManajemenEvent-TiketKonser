@@ -409,7 +409,7 @@ public class MainGUI {
                         
                         String struk = String.format(
                             "====================================\n" +
-                            "          TIKET.APP RECEIPT         \n" +
+                            "          NGONSER YUK! RECEIPT         \n" +
                             "====================================\n" +
                             "Kode   : %s\n" +
                             "Event  : %s\n" +
@@ -417,7 +417,7 @@ public class MainGUI {
                             "Metode : %s\n" +
                             "Total  : Rp %,.0f\n" +
                             "====================================\n" +
-                            "Lunas! Tunjukkan QR di gerbang.",
+                            "Lunas! Tunjukkan QR ke panitia gate.",
                             ticketCode, evt.getTitle(), qty, selectedPayment, totalTagihan
                         );
                         
@@ -472,7 +472,7 @@ public class MainGUI {
     // 4. DASHBOARD ADMIN
     // ==========================================
     public void showAdminDashboard() {
-        JFrame frame = new JFrame("Admin Panel - tiket.app");
+        JFrame frame = new JFrame("Admin Panel - ngonser yuk!");
         frame.setSize(1000, 650);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
