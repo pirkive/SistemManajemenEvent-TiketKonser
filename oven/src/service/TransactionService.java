@@ -34,45 +34,54 @@ public class TransactionService {
 
     // Method Internal untuk urusan Database
     private boolean updateDataTransaksi(User user, Event event, int qty) {
+        // 1. Sesuaikan nama tabel dan kolom dengan database kamu
         String queryUpdateStok = "UPDATE events SET quota = quota - ? WHERE event_id = ?";
-        String querySimpanTiket = "INSERT INTO tickets (ticket_id, event_id, user_id) VALUES (?, ?, ?)";
+        String querySimpanTransaksi = "INSERT INTO transactions (user_id, event_id, event_title, quantity, total_price) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConfig.getConnection()) {
-            // Memulai Transaksi Database (Agar data konsisten)
             conn.setAutoCommit(false);
 
             try (PreparedStatement psUpdate = conn.prepareStatement(queryUpdateStok);
-                 PreparedStatement psTicket = conn.prepareStatement(querySimpanTiket)) {
-                
-                // Update Stok Event
+                PreparedStatement psTrans = conn.prepareStatement(querySimpanTransaksi)) {
+            
+                // Update Stok
                 psUpdate.setInt(1, qty);
                 psUpdate.setString(2, event.getEventId());
                 psUpdate.executeUpdate();
 
-                // Simpan Data Tiket Baru
-                String ticketCode = "TIX-" + System.currentTimeMillis(); // Generate ID unik
-                psTicket.setString(1, ticketCode);
-                psTicket.setString(2, event.getEventId());
-                psTicket.setInt(3, user.getUserId());
-                psTicket.executeUpdate();
+                // Simpan ke tabel TRANSACTIONS (Bukan tickets)
+                psTrans.setInt(1, user.getUserId());
+                psTrans.setString(2, event.getEventId());
+                psTrans.setString(3, event.getTitle());
+                psTrans.setInt(4, qty);
+                psTrans.setDouble(5, event.getPrice() * qty);
+                psTrans.executeUpdate();
 
-                // Jika semua oke, simpan permanen
                 conn.commit();
-                
-                // Update sisa kuota di objek Java (Setter)
                 event.setQuota(event.getQuota() - qty);
-                
-                System.out.println("Transaksi Berhasil! Kode Tiket: " + ticketCode);
                 return true;
-
             } catch (SQLException e) {
-                conn.rollback(); // Batalkan jika ada yang error
-                System.err.println("Transaksi Database Gagal: " + e.getMessage());
+                conn.rollback();
+                System.err.println("Gagal simpan transaksi: " + e.getMessage());
                 return false;
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    public ResultSet getAllTransactions() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            // Query JOIN untuk mendapatkan nama user dari tabel users
+            String sql = "SELECT u.username, t.event_title, t.quantity, t.total_price, t.transaction_date " +
+                        "FROM transactions t " +
+                        "JOIN users u ON t.user_id = u.user_id";
+            Statement stmt = conn.createStatement();
+            return stmt.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
