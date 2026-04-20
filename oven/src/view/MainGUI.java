@@ -425,11 +425,11 @@ public class MainGUI {
                             "====================================\n" +
                             "Lunas! Tunjukkan QR ke panitia gate.\n"+
                             "Tiket yang sudah dibeli tidak dapat \n" +
-                            "   ditukar atau dikembalikan.\n" +
-                            "       ENJOY THE SHOW.\n" +
+                            "     ditukar atau dikembalikan.\n" +
+                            "          ENJOY THE SHOW.\n" +
                             "======================================\n",
                             ticketCode, evt.getTitle(), qty, selectedPayment, totalTagihan
-                        );
+                        );//update tulisan
                         
                         JTextArea textArea = new JTextArea(struk);
                         textArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); 
