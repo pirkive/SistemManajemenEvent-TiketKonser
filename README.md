@@ -1,31 +1,45 @@
-# 🎫 ngonser yuk! - Sistem Manajemen Event & Tiket Konser Berbasis Desktop
+🎫 ngonser yuk! - Sistem Manajemen Event & Tiket Konser
 
-**ngonser yuk!** adalah aplikasi manajemen event dan pemesanan tiket konser berbasis Java Swing. Aplikasi ini dirancang untuk menangani alur transaksi tiket secara end-to-end, mulai dari pengelolaan event oleh Admin hingga penerbitan e-tiket dengan QR Code untuk Pembeli.
+Aplikasi manajemen tiket konser berbasis Desktop yang dirancang untuk memberikan pengalaman pemesanan tiket yang mudah, cepat, dan aman. Proyek ini dibangun menggunakan Java Swing dengan integrasi database MySQL dan fitur QR Code dinamis.
 
-## ✨ Fitur Utama
+🎯 Mengapa "ngonser yuk!"?
+* Keamanan Transaksi: Mengimplementasikan mekanisme otorisasi pembayaran simulasi yang ketat, memastikan setiap tiket yang diterbitkan memiliki status pembayaran yang valid di database.
 
-### 🛒 Fitur Pembeli
-- **Katalog Event**: Melihat daftar konser aktif dengan informasi kuota dan harga real-time.
-- **Validasi Stok**: Sistem otomatis mengecek ketersediaan tiket sebelum melanjutkan transaksi.
-- **Multi-Metode Pembayaran**: Mendukung simulasi pembayaran via Transfer Bank, QRIS, E-Wallet, dan Kartu Kredit.
-- **Otorisasi Payment Gateway**: Simulasi persetujuan transaksi yang aman.
-- **E-Tiket & QR Code**: Generate struk digital otomatis dengan QR Code unik menggunakan integrasi API eksternal.
+* Integritas Data Relasional: Menggunakan Foreign Key Constraints pada MySQL untuk menjamin bahwa riwayat transaksi selalu terhubung dengan data pengguna dan event yang tepat, mencegah terjadinya data yatim (orphan data).
 
-### ⚙️ Fitur Admin & Penyelenggara
-- **Dashboard Manajemen**: CRUD (Create, Read, Update, Delete) data konser.
-- **Monitoring Transaksi**: Melihat riwayat pembelian tiket secara sistematis.
-- **Sinkronisasi Stok**: Pengurangan kuota otomatis setiap kali transaksi berhasil dilakukan.
+* User-Centric Design: Antarmuka dibangun menggunakan Java Swing dengan pendekatan modern, memanfaatkan Custom UI components untuk memberikan tampilan yang bersih, intuitif, dan responsif layaknya aplikasi web modern.
 
-## 🛠️ Teknologi & Library
-- **Java SE (JDK 8+)**
-- **Java Swing & AWT** (Antarmuka Grafis)
-- **MySQL** (Database Relasional)
-- **JDBC Connector** (Koneksi Database)
-- **QR Server API** (Generator QR Code)
+* Validasi Stok Real-Time: Sistem secara cerdas melakukan pengecekan ketersediaan kuota tepat sebelum transaksi diproses untuk menghindari masalah overselling tiket.
 
-## 🗄️ Struktur Database
+* Digital Receipt System: Fitur integrasi API eksternal memungkinkan pembuatan QR Code secara dinamis sebagai representasi ID unik tiket, yang berfungsi sebagai alat verifikasi saat penukaran tiket di lokasi (check-in).
 
-Database `eticket_db` terdiri dari 4 tabel utama yang saling berelasi:
+🚀 Fitur Utama
+
+👤 Pembeli (Customer)
+* Katalog Konser: Melihat daftar event konser yang tersedia secara real-time.
+* Alur Pemesanan Terintegrasi: Proses pemesanan tiket yang mengikuti standar *Activity Diagram* (Cek Stok -> Isi Data -> Pilih Metode Pembayaran -> Otorisasi).
+* E-Tiket & QR Code: Mendapatkan struk digital dan QR Code unik setelah pembayaran berhasil dikonfirmasi.
+
+🛡️ Admin / Panitia
+* Manajemen Event (CRUD): Menambah, melihat, mengubah, dan menghapus data konser (Judul, Kuota, Harga).
+* Update Stok Otomatis: Stok tiket akan berkurang secara otomatis setiap kali ada transaksi sukses.
+
+🛠️ Teknologi yang Digunakan
+* Bahasa Pemrograman: Java (JDK 8+)
+* GUI Library: Java Swing & AWT
+* Database: MySQL
+* API Eksternal: [QR Server API](https://goqr.me/api/) (untuk generate QR Code)
+* Version Control: Git & GitHub
+
+📋 Prasyarat Sistem
+1.  XAMPP / WAMP: Untuk menjalankan server database MySQL.
+2.  Java Development Kit (JDK): Versi 8 atau yang lebih baru.
+3.  MySQL Connector J: Driver JDBC untuk menghubungkan Java dengan MySQL.
+4.  Koneksi Internet: Diperlukan untuk memuat QR Code pada struk pembayaran.
+
+⚙️ Instalasi & Setup
+1. Persiapan Database
+Buat database baru dengan nama `eticket_db` dan jalankan query berikut untuk membuat tabel beserta relasinya:
 
 ```sql
 -- 1. Tabel Users
