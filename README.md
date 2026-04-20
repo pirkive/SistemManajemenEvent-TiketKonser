@@ -2,17 +2,6 @@
 
 Aplikasi manajemen tiket konser berbasis Desktop yang dirancang untuk memberikan pengalaman pemesanan tiket yang mudah, cepat, dan aman. Proyek ini dibangun menggunakan Java Swing dengan integrasi database MySQL dan fitur QR Code dinamis.
 
-🎯 Mengapa "ngonser yuk!"?
-* Keamanan Transaksi: Mengimplementasikan mekanisme otorisasi pembayaran simulasi yang ketat, memastikan setiap tiket yang diterbitkan memiliki status pembayaran yang valid di database.
-
-* Integritas Data Relasional: Menggunakan Foreign Key Constraints pada MySQL untuk menjamin bahwa riwayat transaksi selalu terhubung dengan data pengguna dan event yang tepat, mencegah terjadinya data yatim (orphan data).
-
-* User-Centric Design: Antarmuka dibangun menggunakan Java Swing dengan pendekatan modern, memanfaatkan Custom UI components untuk memberikan tampilan yang bersih, intuitif, dan responsif layaknya aplikasi web modern.
-
-* Validasi Stok Real-Time: Sistem secara cerdas melakukan pengecekan ketersediaan kuota tepat sebelum transaksi diproses untuk menghindari masalah overselling tiket.
-
-* Digital Receipt System: Fitur integrasi API eksternal memungkinkan pembuatan QR Code secara dinamis sebagai representasi ID unik tiket, yang berfungsi sebagai alat verifikasi saat penukaran tiket di lokasi (check-in).
-
 🚀 Fitur Utama
 
 👤 Pembeli (Customer)
@@ -42,36 +31,49 @@ Aplikasi manajemen tiket konser berbasis Desktop yang dirancang untuk memberikan
 Buat database baru dengan nama `eticket_db` dan jalankan query berikut untuk membuat tabel beserta relasinya:
 
 ```sql
--- Tabel Users
-CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE,
-    password VARCHAR(50),
-    role ENUM('Admin', 'Pembeli', 'Penyelenggara')
+-- 1. Tabel Users
+CREATE TABLE `users` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('Pembeli','Penyelenggara','Admin') NOT NULL,
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY `username` (`username`)
 );
 
--- Tabel Events
-CREATE TABLE events (
-    event_id VARCHAR(10) PRIMARY KEY,
-    title VARCHAR(100),
-    quota INT,
-    price DOUBLE
+-- 2. Tabel Events
+CREATE TABLE `events` (
+  `event_id` varchar(10) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `event_date` datetime DEFAULT NULL,
+  `quota` int(11) NOT NULL,
+  `price` double NOT NULL,
+  PRIMARY KEY (`event_id`)
 );
 
--- Tabel Tickets (Histori Transaksi)
-CREATE TABLE tickets (
-    ticket_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
-    event_id VARCHAR(10),
-    quantity INT,
-    total_price DOUBLE,
-    purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
+-- 3. Tabel Tickets (Histori Tiket)
+CREATE TABLE `tickets` (
+  `ticket_id` varchar(20) NOT NULL,
+  `event_id` varchar(10) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `purchase_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` enum('Lunas','Dibatalkan') DEFAULT 'Lunas',
+  PRIMARY KEY (`ticket_id`),
+  FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 );
 
--- Contoh Data Awal (User & Event)
-INSERT INTO users (username, password, role) VALUES ('admin1', 'admin123', 'Admin');
-INSERT INTO users (username, password, role) VALUES ('amanda', 'pass123', 'Pembeli');
-
-INSERT INTO events (event_id, title, quota, price) VALUES ('EVT-001', 'Konser Sheila On 7', 500, 350000);
+-- 4. Tabel Transactions (Histori Pembayaran)
+CREATE TABLE `transactions` (
+  `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `event_id` varchar(50) DEFAULT NULL,
+  `event_title` varchar(255) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `total_price` double DEFAULT NULL,
+  `transaction_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`transaction_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  FOREIGN KEY (`event_id`) REFERENCES `events` (`event_id`)
+);
