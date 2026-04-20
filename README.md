@@ -1,4 +1,4 @@
-**🎫 ngonser yuk! - Sistem Manajemen Event & Tiket Konser Berbasis Desktop**
+# 🎫 ngonser yuk! - Sistem Manajemen Event & Tiket Konser Berbasis Desktop
 
 **ngonser yuk!** adalah aplikasi manajemen event dan pemesanan tiket konser berbasis Java Swing. Aplikasi ini dirancang untuk menangani alur transaksi tiket secara end-to-end, mulai dari pengelolaan event oleh Admin hingga penerbitan e-tiket dengan QR Code untuk Pembeli.
 
