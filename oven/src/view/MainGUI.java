@@ -1,17 +1,16 @@
 package view;
 
 import database.DatabaseConfig;
-import model.Event;
-import model.User;
-import service.TransactionService;
-
+import java.awt.*;
+import java.net.URL;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.net.URL;
-import java.sql.*;
+import model.Event;
+import model.User;
+import service.TransactionService;
 
 public class MainGUI {
 
@@ -429,6 +428,8 @@ public class MainGUI {
                         JPanel receiptPanel = new JPanel(new BorderLayout(10, 15));
                         receiptPanel.add(textArea, BorderLayout.CENTER);
 
+                        // Bagian ini biasanya ada di dalam TransactionService atau langsung di GUI setelah bayar sukses
+                        String insertSql = "INSERT INTO transactions (user_id, event_id, event_title, quantity, total_price) VALUES (?, ?, ?, ?, ?)";
                         try {
                             String qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + ticketCode;
                             URL url = new URL(qrApiUrl);
@@ -525,7 +526,29 @@ public class MainGUI {
         JButton bAdd = new JButton("Tambah Data"); styleButton(bAdd, blueColor, Color.WHITE);
         JButton bUpd = new JButton("Update Data"); styleButton(bUpd, yellowColor, textDark);
         JButton bDel = new JButton("Hapus Data"); styleButton(bDel, dangerColor(), Color.WHITE);
-        btnPanel.add(bAdd); btnPanel.add(bUpd); btnPanel.add(bDel);
+        
+        // Tombol untuk History
+        JButton bHistory = new JButton("Lihat History Pengguna");
+        styleButton(bHistory, new Color(46, 204, 113), Color.WHITE); 
+
+        // Tambahkan ke panel (Cukup satu kali saja per tombol)
+        btnPanel.add(bHistory);
+        btnPanel.add(bAdd); 
+        btnPanel.add(bUpd); 
+        btnPanel.add(bDel);
+
+        // Pasang listener
+        bHistory.addActionListener(e -> {
+            showUserHistoryWindow();  
+        });
+        // Pasang aksi admin 
+        bAdd.addActionListener(e -> executeAdminQuery("INSERT INTO events (title, quota, price, event_id) VALUES (?, ?, ?, ?)", tJudul, tKuota, tHarga, tId, model, frame, "ditambah"));
+        bUpd.addActionListener(e -> executeAdminQuery("UPDATE events SET title=?, quota=?, price=? WHERE event_id=?", tJudul, tKuota, tHarga, tId, model, frame, "diupdate"));
+        bDel.addActionListener(e -> {
+            try(Connection c = DatabaseConfig.getConnection(); PreparedStatement p = c.prepareStatement("DELETE FROM events WHERE event_id=?")) {
+                p.setString(1, tId.getText()); p.executeUpdate(); loadDataToTable(model);
+            } catch(Exception ex) { JOptionPane.showMessageDialog(frame, "Error Hapus: " + ex.getMessage()); }
+        });
 
         formCard.add(inputGrid, BorderLayout.CENTER);
         formCard.add(btnPanel, BorderLayout.SOUTH);
@@ -582,4 +605,84 @@ public class MainGUI {
             }
         } catch (SQLException e) { e.printStackTrace(); }
     }
+
+    // Dashboard Admin: Menu untuk melihat history pemesanan seluruh pengguna
+    public void showUserHistoryWindow() {
+        JFrame historyFrame = new JFrame("Database Pengguna & History Pemesanan");
+        historyFrame.setSize(700, 500);
+        historyFrame.setLayout(new BorderLayout());
+        historyFrame.getContentPane().setBackground(bgGrayColor);
+
+        JPanel contentPanel = createCardPanel();
+        contentPanel.setLayout(new BorderLayout(0, 10));
+
+        JLabel lblTitle = new JLabel("Daftar Riwayat Pemesanan Seluruh Pengguna");
+        lblTitle.setFont(fontTitle);
+        contentPanel.add(lblTitle, BorderLayout.NORTH);
+
+        // Kolom: Nama Akun dan Detail History
+        String[] cols = {"Nama Akun (Username)", "Event yang Dibeli", "Jumlah Tiket", "Total Bayar", "Tanggal Transaksi"};
+        DefaultTableModel historyModel = new DefaultTableModel(cols, 0);
+        JTable historyTable = new JTable(historyModel);
+    
+        // Styling Tabel agar seragam
+        historyTable.setFont(fontNormal);
+        historyTable.setRowHeight(30);
+        JScrollPane scroll = new JScrollPane(historyTable);
+        scroll.getViewport().setBackground(Color.WHITE);
+        contentPanel.add(scroll, BorderLayout.CENTER);
+
+        // Query Database (Menyambungkan tabel users dan transactions)
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            // Asumsi nama tabel transaksi kamu adalah 'transactions' atau sesuai di DatabaseConfig
+            // Query ini menggabungkan tabel users dan transactions berdasarkan user_id
+            String sql = "SELECT u.username, t.event_title, t.quantity, t.total_price, t.transaction_date " +
+                        "FROM users u " +
+                        "JOIN transactions t ON u.user_id = t.user_id " +
+                        "ORDER BY t.transaction_date DESC";
+        
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                historyModel.addRow(new Object[]{
+                    rs.getString("username"),
+                    rs.getString("event_title"),
+                    rs.getInt("quantity"),
+                    "Rp " + String.format("%,.0f", rs.getDouble("total_price")),
+                    rs.getTimestamp("transaction_date")
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(historyFrame, "Gagal mengambil data: " + e.getMessage());
+        }
+
+        historyFrame.add(contentPanel, BorderLayout.CENTER);
+        historyFrame.setLocationRelativeTo(null); // Muncul di tengah layar
+        historyFrame.setVisible(true);
+    }
+    public void loadHistoryData(DefaultTableModel model) {
+    model.setRowCount(0); // Hapus data lama di tabel tampilan
+    String sql = "SELECT u.username, t.event_title, t.quantity, t.total_price, t.transaction_date " +
+                 "FROM users u JOIN transactions t ON u.user_id = t.user_id " +
+                 "ORDER BY t.transaction_date DESC";
+    
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        
+        while (rs.next()) {
+            model.addRow(new Object[]{
+                rs.getString("username"),
+                rs.getString("event_title"),
+                rs.getInt("quantity"),
+                rs.getDouble("total_price"),
+                rs.getTimestamp("transaction_date")
+            });
+        }
+    } catch (SQLException e) {
+        System.err.println("Gagal refresh history: " + e.getMessage());
+    }
+    }
+
 }
