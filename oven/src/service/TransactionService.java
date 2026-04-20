@@ -70,4 +70,18 @@ public class TransactionService {
             return false;
         }
     }
+    public ResultSet getAllTransactions() {
+        try {
+            Connection conn = DatabaseConfig.getConnection();
+            // Query JOIN untuk mendapatkan nama user dari tabel users
+            String sql = "SELECT u.username, t.event_title, t.quantity, t.total_price, t.transaction_date " +
+                        "FROM transactions t " +
+                        "JOIN users u ON t.user_id = u.user_id";
+            Statement stmt = conn.createStatement();
+            return stmt.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
