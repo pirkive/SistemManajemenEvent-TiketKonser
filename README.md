@@ -1,74 +1,66 @@
-Sistem E-Ticket "ngonser yuk!"
+🎫 ngonser yuk! - Sistem Manajemen Event & Tiket Konser
 
-A. Deskripsi Umum
-"ngonser yuk!" adalah aplikasi sistem manajemen event dan pemesanan tiket konser berbasis *desktop*. Aplikasi ini dibangun menggunakan antarmuka grafis (GUI) Java Swing dan terintegrasi dengan database MySQL. Sistem ini memisahkan hak akses antara Admin (untuk mengelola data event) dan Pembeli (untuk memesan tiket).
+Aplikasi manajemen tiket konser berbasis Desktop yang dirancang untuk memberikan pengalaman pemesanan tiket yang mudah, cepat, dan aman. Proyek ini dibangun menggunakan Java Swing dengan integrasi database MySQL dan fitur QR Code dinamis.
 
+🚀 Fitur Utama
 
+👤 Pembeli (Customer)
+* Katalog Konser: Melihat daftar event konser yang tersedia secara real-time.
+* Alur Pemesanan Terintegrasi: Proses pemesanan tiket yang mengikuti standar *Activity Diagram* (Cek Stok -> Isi Data -> Pilih Metode Pembayaran -> Otorisasi).
+* E-Tiket & QR Code: Mendapatkan struk digital dan QR Code unik setelah pembayaran berhasil dikonfirmasi.
 
-B. Teknologi yang Digunakan
-* Bahasa Pemrograman: Java (JDK 8 atau lebih baru)
-* Antarmuka Pengguna (GUI): Java Swing & AWT
+🛡️ Admin / Panitia
+* Manajemen Event (CRUD): Menambah, melihat, mengubah, dan menghapus data konser (Judul, Kuota, Harga).
+* Update Stok Otomatis: Stok tiket akan berkurang secara otomatis setiap kali ada transaksi sukses.
+
+🛠️ Teknologi yang Digunakan
+* Bahasa Pemrograman: Java (JDK 8+)
+* GUI Library: Java Swing & AWT
 * Database: MySQL
-* Konektivitas Database: JDBC (Java Database Connectivity) MySQL Connector
-* API Eksternal: QR Server API (`api.qrserver.com`) untuk men-*generate* QR Code secara dinamis.
+* API Eksternal: [QR Server API](https://goqr.me/api/) (untuk generate QR Code)
+* Version Control: Git & GitHub
 
+📋 Prasyarat Sistem
+1.  XAMPP / WAMP: Untuk menjalankan server database MySQL.
+2.  Java Development Kit (JDK): Versi 8 atau yang lebih baru.
+3.  MySQL Connector J: Driver JDBC untuk menghubungkan Java dengan MySQL.
+4.  Koneksi Internet: Diperlukan untuk memuat QR Code pada struk pembayaran.
 
+⚙️ Instalasi & Setup
+1. Persiapan Database
+Buat database baru dengan nama `eticket_db` dan jalankan query berikut untuk membuat tabel beserta relasinya:
 
-C. Struktur Direktori Kode (Arsitektur MVC)
-Aplikasi ini menggunakan pendekatan arsitektur *Model-View-Controller/Service* (MVC) agar kode rapi dan modular:
-* `model/`
-    * `User.java`: Representasi data pengguna (id, username, role).
-    * `Event.java`: Representasi data konser (id, judul, kuota, harga).
-* `view/`
-    * `MainGUI.java`: Menangani seluruh tampilan antarmuka (Login, Register, Dashboard Admin, Dashboard Pembeli).
-* `service/`
-    * `TransactionService.java`: Menangani logika bisnis, seperti memproses pembayaran dan mengurangi stok tiket di database.
-* `database/`
-    * `DatabaseConfig.java`: Kelas utilitas untuk mengatur koneksi ke database MySQL.
+```sql
+-- Tabel Users
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(50),
+    role ENUM('Admin', 'Pembeli', 'Penyelenggara')
+);
 
+-- Tabel Events
+CREATE TABLE events (
+    event_id VARCHAR(10) PRIMARY KEY,
+    title VARCHAR(100),
+    quota INT,
+    price DOUBLE
+);
 
+-- Tabel Tickets (Histori Transaksi)
+CREATE TABLE tickets (
+    ticket_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    event_id VARCHAR(10),
+    quantity INT,
+    total_price DOUBLE,
+    purchase_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
+);
 
-D. Fitur Utama
-1. Fitur Umum (Autentikasi)
-* Login: Pengguna masuk menggunakan username dan password. Sistem akan mengarahkan ke dashboard yang sesuai dengan *role* (Admin/Pembeli).
-* Register: Pengguna baru dapat mendaftarkan akun. Secara *default*, akun baru akan mendapatkan *role* "Pembeli".
+-- Contoh Data Awal (User & Event)
+INSERT INTO users (username, password, role) VALUES ('admin1', 'admin123', 'Admin');
+INSERT INTO users (username, password, role) VALUES ('amanda', 'pass123', 'Pembeli');
 
-2. Dashboard Admin (Manajemen Event)
-* Read: Melihat daftar event konser beserta ID, sisa stok, dan harga dasar di dalam tabel.
-* Create: Menambahkan data event konser baru ke dalam sistem.
-* Update: Mengubah detail event (seperti menambah kuota tiket atau mengubah harga).
-* Delete: Menghapus data event dari sistem.
-
-3. Dashboard Pembeli (Pemesanan Tiket)
-* Katalog Event: Melihat daftar konser yang tersedia.
-* Sistem Transaksi: Fitur pembelian tiket dengan alur yang disesuaikan dengan standar *Payment Gateway*.
-
-
-
-E. Alur Pembelian Tiket (Sesuai Activity Diagram)
-Proses pembelian dirancang agar interaktif dan meminimalisir *error* dari pengguna, dengan alur sebagai berikut:
-* Pilih Event: Pembeli memilih konser dari tabel katalog.
-* Validasi Stok (Sistem): Sistem secara otomatis mengecek apakah kuota tiket masih lebih dari 0. Jika habis, proses dihentikan dengan peringatan.
-* Input Data Pemesanan: Pembeli memasukkan jumlah tiket yang ingin dibeli. Sistem memvalidasi agar input tidak melebihi stok yang ada.
-* Pilih Metode Pembayaran: Pembeli memilih metode pembayaran (*Transfer Bank, QRIS, E-Wallet, Kartu Kredit*) melalui *dropdown*.
-* Otorisasi Payment Gateway: Sistem melakukan simulasi persetujuan pembayaran.
-* Update Data (Sistem): Jika pembayaran berhasil, sistem akan memanggil `TransactionService` untuk mengurangi stok tiket di database.
-* Generate E-Tiket & QR Code: Sistem membuat kode struk unik (kombinasi "TIX", username, dan *timestamp*) lalu mengunduh gambar QR Code dari Web API untuk ditampilkan pada resi digital.
-   
-
-
-F. Panduan Instalasi dan Konfigurasi
-Untuk menjalankan aplikasi ini di komputer lokal, ikuti langkah-langkah berikut:
-Langkah 1: Setup Database MySQL
-* Buka XAMPP/WAMP dan jalankan service MySQL.
-* Buat database baru (misal: `eticket_db`).
-* Buat tabel `users` (kolom: user_id, username, password, role) dan tabel `events` (kolom: event_id, title, quota, price).
-* Pastikan kredensial di `DatabaseConfig.java` (URL, User, Password) sudah sesuai dengan database lokalmu.
-
-Langkah 2: Setup IDE (NetBeans/IntelliJ/Eclipse)
-1. *Clone* atau *import* folder project ini ke dalam IDE.
-2. Tambahkan *library* MySQL JDBC Driver / Connector (.jar) ke dalam *dependencies* atau *build path* project.
-
-Langkah 3: Menjalankan Aplikasi
-1. Pastikan komputer terhubung ke internet (wajib untuk memunculkan gambar QR Code E-Tiket).
-2. Jalankan (Run) file `MainGUI.java`.
+INSERT INTO events (event_id, title, quota, price) VALUES ('EVT-001', 'Konser Sheila On 7', 500, 350000);
