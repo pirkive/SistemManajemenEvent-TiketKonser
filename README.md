@@ -2,6 +2,17 @@
 
 Aplikasi manajemen tiket konser berbasis Desktop yang dirancang untuk memberikan pengalaman pemesanan tiket yang mudah, cepat, dan aman. Proyek ini dibangun menggunakan Java Swing dengan integrasi database MySQL dan fitur QR Code dinamis.
 
+🎯 Mengapa "ngonser yuk!"?
+* Keamanan Transaksi: Mengimplementasikan mekanisme otorisasi pembayaran simulasi yang ketat, memastikan setiap tiket yang diterbitkan memiliki status pembayaran yang valid di database.
+
+* Integritas Data Relasional: Menggunakan Foreign Key Constraints pada MySQL untuk menjamin bahwa riwayat transaksi selalu terhubung dengan data pengguna dan event yang tepat, mencegah terjadinya data yatim (orphan data).
+
+* User-Centric Design: Antarmuka dibangun menggunakan Java Swing dengan pendekatan modern, memanfaatkan Custom UI components untuk memberikan tampilan yang bersih, intuitif, dan responsif layaknya aplikasi web modern.
+
+* Validasi Stok Real-Time: Sistem secara cerdas melakukan pengecekan ketersediaan kuota tepat sebelum transaksi diproses untuk menghindari masalah overselling tiket.
+
+* Digital Receipt System: Fitur integrasi API eksternal memungkinkan pembuatan QR Code secara dinamis sebagai representasi ID unik tiket, yang berfungsi sebagai alat verifikasi saat penukaran tiket di lokasi (check-in).
+
 🚀 Fitur Utama
 
 👤 Pembeli (Customer)
