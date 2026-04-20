@@ -13,6 +13,7 @@ import model.User;
 import service.TransactionService;
 
 public class MainGUI {
+    private static int counterAntrean = 0;
 
     // --- WARNA TEMA MODERN (ALA TIKET.COM) ---
     private final Color blueColor = new Color(0, 100, 210);      // Biru utama
@@ -405,11 +406,13 @@ public class MainGUI {
                     if (transactionService.prosesPembayaran(activeUser, evt, qty)) {
                         
                         String ticketCode = "TIX-" + activeUser.getUsername().toUpperCase() + "-" + System.currentTimeMillis();
+                        String antrean = String.format("%03d", (int)(Math.random() * 100) + 1);
                         
                         String struk = String.format(
                             "====================================\n" +
                             "          NGONSER YUK! RECEIPT         \n" +
                             "====================================\n" +
+                            "NOMOR ANTREAN : " + antrean + "\n" +
                             "Kode   : %s\n" +
                             "Event  : %s\n" +
                             "Jumlah : %d Tiket\n" +
