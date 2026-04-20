@@ -11,6 +11,8 @@ import javax.swing.table.DefaultTableModel;
 import model.Event;
 import model.User;
 import service.TransactionService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainGUI {
     private static int counterAntrean = 0;
@@ -335,6 +337,7 @@ public class MainGUI {
         buyCard.add(lblInfoPilihan, BorderLayout.WEST);
         buyCard.add(btnBeli, BorderLayout.EAST);
 
+
         // Mengaktifkan tombol beli jika baris tabel diklik
         table.getSelectionModel().addListSelectionListener(e -> {
             int row = table.getSelectedRow();
@@ -407,17 +410,18 @@ public class MainGUI {
                         
                         String ticketCode = "TIX-" + activeUser.getUsername().toUpperCase() + "-" + System.currentTimeMillis();
                         String antrean = String.format("%03d", (int)(Math.random() * 100) + 1);
-                        
+                        String waktu = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
                         String struk = String.format(
                             "====================================\n" +
                             "          NGONSER YUK! RECEIPT         \n" +
                             "====================================\n" +
                             "NOMOR ANTREAN : " + antrean + "\n" +
-                            "Kode   : %s\n" +
-                            "Event  : %s\n" +
-                            "Jumlah : %d Tiket\n" +
-                            "Metode : %s\n" +
-                            "Total  : Rp %,.0f\n" +
+                            "WAKTU         : " + waktu + "\n" +
+                            "Kode          : %s\n" +
+                            "Event         : %s\n" +
+                            "Jumlah        : %d Tiket\n" +
+                            "Metode        : %s\n" +
+                            "Total         : Rp %,.0f\n" +
                             "====================================\n" +
                             "Lunas! Tunjukkan QR ke panitia gate.",
                             ticketCode, evt.getTitle(), qty, selectedPayment, totalTagihan
@@ -459,6 +463,7 @@ public class MainGUI {
             } else {
                 // Payment Gateway Gagal
                 JOptionPane.showMessageDialog(frame, "Pembayaran ditolak atau dibatalkan oleh Payment Gateway.", "Otorisasi Gagal", JOptionPane.ERROR_MESSAGE);
+
             }
         });
 
