@@ -267,7 +267,6 @@ public class MainGUI {
         lblRole.setFont(fontNormal); lblRole.setForeground(textMuted);
         
         JButton btnMenu1 = new JButton("Event Konser"); styleSidebarButton(btnMenu1); btnMenu1.setForeground(blueColor);
-        JButton btnMenu2 = new JButton("My Order (Coming Soon)"); styleSidebarButton(btnMenu2);
         JButton btnLogout = new JButton("Keluar"); styleSidebarButton(btnLogout); btnLogout.setForeground(Color.RED);
 
         sidebar.add(lblProfileName);
@@ -275,7 +274,6 @@ public class MainGUI {
         sidebar.add(Box.createVerticalStrut(30));
         sidebar.add(btnMenu1);
         sidebar.add(Box.createVerticalStrut(10));
-        sidebar.add(btnMenu2);
         sidebar.add(Box.createVerticalGlue()); 
         sidebar.add(btnLogout);
 
