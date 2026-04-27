@@ -34,15 +34,6 @@ public class MainGUI {
     private User activeUser;
     private TransactionService transactionService = new TransactionService();
 
-    public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        SwingUtilities.invokeLater(() -> new MainGUI().showLoginWindow());
-    }
-
     // --- HELPER COMPONENT: KARTU (CARD PANEL) ---
     private JPanel createCardPanel() {
         JPanel panel = new JPanel(new BorderLayout());
