@@ -385,7 +385,7 @@ public class MainGUI {
 
             // 3. PEMBELI: Memilih Metode Pembayaran
             double totalTagihan = price * qty;
-            String[] paymentMethods = {"Transfer Bank", "QRIS", "E-Wallet (Dana/OVO/GoPay)", "Kartu Kredit"};
+            String[] paymentMethods = {"Transfer Bank", "E-Wallet (Dana/OVO/GoPay)", "Kartu Kredit"};
             String selectedPayment = (String) JOptionPane.showInputDialog(
                     frame,
                     "Total Tagihan: Rp " + String.format("%,.0f", totalTagihan) + "\n\nPilih Metode Pembayaran:",
