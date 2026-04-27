@@ -356,9 +356,9 @@ public class MainGUI {
                 return;
             }
 
-            // 2. PEMBELI: Mengisi Data Pemesanan (Input Jumlah Tiket)
+            // 2. PEMBELI: Mengisi Data Pemesanan
             String qtyStr = JOptionPane.showInputDialog(frame, "Event: " + eventTitle + "\nStok tersedia: " + availableStock + "\n\nMasukkan jumlah tiket yang ingin dibeli:", "Isi Data Pemesanan", JOptionPane.QUESTION_MESSAGE);
-            if (qtyStr == null || qtyStr.trim().isEmpty()) return; // Batal dibeli
+            if (qtyStr == null || qtyStr.trim().isEmpty()) return;
 
             int qty;
             try {
@@ -377,24 +377,16 @@ public class MainGUI {
             // 3. PEMBELI: Memilih Metode Pembayaran
             double totalTagihan = price * qty;
             String[] paymentMethods = {"Transfer Bank", "E-Wallet (Dana/OVO/GoPay)", "Kartu Kredit"};
-            String selectedPayment = (String) JOptionPane.showInputDialog(
-                    frame,
-                    "Total Tagihan: Rp " + String.format("%,.0f", totalTagihan) + "\n\nPilih Metode Pembayaran:",
-                    "Metode Pembayaran",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    paymentMethods,
-                    paymentMethods[0]
-            );
+            String selectedPayment = (String) JOptionPane.showInputDialog(frame, "Total Tagihan: Rp " + String.format("%,.0f", totalTagihan) + "\n\nPilih Metode Pembayaran:", "Metode Pembayaran", JOptionPane.QUESTION_MESSAGE, null, paymentMethods, paymentMethods[0]);
 
-            if (selectedPayment == null) return; // Batal dibeli
+            if (selectedPayment == null) return;
 
             // 4. PAYMENT GATEWAY: Otorisasi Pembayaran
             int confirmPayment = JOptionPane.showConfirmDialog(frame, "Melakukan otorisasi ke Payment Gateway...\n\n[SIMULASI] Apakah pembayaran dinyatakan BERHASIL?", "Otorisasi Payment Gateway", JOptionPane.YES_NO_OPTION);
 
             if (confirmPayment == JOptionPane.YES_OPTION) {
                 // 5. SISTEM: Update Kuota & Generate Tiket
-                try (Connection conn = DatabaseConfig.getConnection()) {
+                try {
                     Event evt = new Event(eventId, eventTitle, availableStock, price);
                     
                     if (transactionService.prosesPembayaran(activeUser, evt, qty)) {
@@ -402,47 +394,60 @@ public class MainGUI {
                         String ticketCode = "TIX-" + activeUser.getUsername().toUpperCase() + "-" + System.currentTimeMillis();
                         String antrean = String.format("%03d", (int)(Math.random() * 100) + 1);
                         String waktu = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
-                        String struk = String.format(
-                            "====================================\n" +
-                            "          NGONSER YUK! RECEIPT         \n" +
-                            "====================================\n" +
-                            "NOMOR ANTREAN : " + antrean + "\n" +
-                            "WAKTU         : " + waktu + "\n" +
-                            "Kode          : %s\n" +
-                            "Event         : %s\n" +
-                            "Jumlah        : %d Tiket\n" +
-                            "Metode        : %s\n" +
-                            "Total         : Rp %,.0f\n" +
-                            "====================================\n" +
-                            "Lunas! Tunjukkan QR ke panitia gate.\n"+
-                            "Tiket yang sudah dibeli tidak dapat \n" +
-                            "     ditukar atau dikembalikan.\n" +
-                            "          ENJOY THE SHOW.\n" +
-                            "======================================\n",
-                            ticketCode, evt.getTitle(), qty, selectedPayment, totalTagihan
-                        );//update tulisan
                         
+                        // Layouting Struk agar Rapi
+                        String struk = String.format(
+                            "==========================================\n" +
+                            "          NGONSER YUK! RECEIPT           \n" +
+                            "==========================================\n" +
+                            " NOMOR ANTREAN : %s\n" +
+                            " WAKTU         : %s\n" + 
+                            "------------------------------------------\n" +
+                            " Kode Tiket    : %s\n" +
+                            " Event         : %s\n" +
+                            " Jumlah        : %d Tiket\n" +
+                            " Metode        : %s\n" +
+                            " Total Bayar   : Rp %,.0f\n" +
+                            "------------------------------------------\n" +
+                            " STATUS        : LUNAS / PAID\n" +
+                            "==========================================\n" +
+                            "      ENJOY THE SHOW, %s!      \n" +
+                            "==========================================\n",
+                            antrean, waktu, ticketCode, evt.getTitle(), qty, 
+                            selectedPayment, totalTagihan, activeUser.getUsername().toUpperCase()
+                        );
+                        
+                        // Setup Tampilan Struk
                         JTextArea textArea = new JTextArea(struk);
-                        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); 
+                        textArea.setFont(new Font("Monospaced", Font.PLAIN, 13)); 
                         textArea.setEditable(false);
-                        textArea.setBackground(new Color(245, 245, 245));
+                        textArea.setOpaque(false); // Biar menyatu dengan background panel
 
-                        JPanel receiptPanel = new JPanel(new BorderLayout(10, 15));
-                        receiptPanel.add(textArea, BorderLayout.CENTER);
+                        // Panel Utama (Gunakan BoxLayout Y_AXIS untuk rata tengah vertikal)
+                        JPanel receiptPanel = new JPanel();
+                        receiptPanel.setLayout(new BoxLayout(receiptPanel, BoxLayout.Y_AXIS));
+                        receiptPanel.setBackground(Color.WHITE);
+                        receiptPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-                        // Bagian ini biasanya ada di dalam TransactionService atau langsung di GUI setelah bayar sukses
-                        String insertSql = "INSERT INTO transactions (user_id, event_id, event_title, quantity, total_price) VALUES (?, ?, ?, ?, ?)";
+                        // Komponen 1: Teks Struk
+                        textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        receiptPanel.add(textArea);
+                        
+                        // Jarak antar teks dan QR
+                        receiptPanel.add(Box.createVerticalStrut(15));
+
+                        // Komponen 2: QR Code
                         try {
                             String qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + ticketCode;
-                            URL url = new URL(qrApiUrl);
-                            ImageIcon qrImage = new ImageIcon(url);
-                            JLabel lblQr = new JLabel(qrImage);
-                            lblQr.setHorizontalAlignment(JLabel.CENTER);
-                            receiptPanel.add(lblQr, BorderLayout.SOUTH);
+                            JLabel lblQr = new JLabel(new ImageIcon(new URL(qrApiUrl)));
+                            lblQr.setAlignmentX(Component.CENTER_ALIGNMENT);
+                            receiptPanel.add(lblQr);
                         } catch (Exception ex) {
-                            System.err.println("QR Code tidak dapat dimuat.");
+                            System.err.println("Gagal memuat QR Code.");
                         }
-                        
+
+                        receiptPanel.add(Box.createVerticalStrut(10));
+
                         // 6. PEMBELI: Menerima E-Tiket
                         JOptionPane.showMessageDialog(frame, receiptPanel, "Pembayaran Berhasil!", JOptionPane.INFORMATION_MESSAGE);
                         
@@ -456,9 +461,7 @@ public class MainGUI {
                     JOptionPane.showMessageDialog(frame, "Terjadi kesalahan: " + ex.getMessage()); 
                 }
             } else {
-                // Payment Gateway Gagal
                 JOptionPane.showMessageDialog(frame, "Pembayaran ditolak atau dibatalkan oleh Payment Gateway.", "Otorisasi Gagal", JOptionPane.ERROR_MESSAGE);
-
             }
         });
 
