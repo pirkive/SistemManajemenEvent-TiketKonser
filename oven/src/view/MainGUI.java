@@ -4,6 +4,8 @@ import database.DatabaseConfig;
 import java.awt.*;
 import java.net.URL;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -11,8 +13,6 @@ import javax.swing.table.DefaultTableModel;
 import model.Event;
 import model.User;
 import service.TransactionService;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MainGUI {
     private static int counterAntrean = 0;
@@ -550,10 +550,44 @@ public class MainGUI {
         // Pasang aksi admin 
         bAdd.addActionListener(e -> executeAdminQuery("INSERT INTO events (title, quota, price, event_id) VALUES (?, ?, ?, ?)", tJudul, tKuota, tHarga, tId, model, frame, "ditambah"));
         bUpd.addActionListener(e -> executeAdminQuery("UPDATE events SET title=?, quota=?, price=? WHERE event_id=?", tJudul, tKuota, tHarga, tId, model, frame, "diupdate"));
+        // --- Bagian Hapus Data dengan Warning ---
         bDel.addActionListener(e -> {
-            try(Connection c = DatabaseConfig.getConnection(); PreparedStatement p = c.prepareStatement("DELETE FROM events WHERE event_id=?")) {
-                p.setString(1, tId.getText()); p.executeUpdate(); loadDataToTable(model);
-            } catch(Exception ex) { JOptionPane.showMessageDialog(frame, "Error Hapus: " + ex.getMessage()); }
+            String id = tId.getText();
+            String judul = tJudul.getText();
+
+            // Cek apakah ada data yang dipilih
+            if (id.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Pilih data di tabel yang ingin dihapus!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Tampilkan dialog konfirmasi
+            int confirm = JOptionPane.showConfirmDialog(
+                frame, 
+                "Apakah Anda yakin ingin menghapus event: " + judul + "?", 
+                "Konfirmasi Hapus", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.WARNING_MESSAGE
+            );
+
+            // Jika pilih YES, eksekusi hapus
+            if (confirm == JOptionPane.YES_OPTION) {
+                try (Connection c = DatabaseConfig.getConnection(); 
+                     PreparedStatement p = c.prepareStatement("DELETE FROM events WHERE event_id=?")) {
+                    
+                    p.setString(1, id); 
+                    p.executeUpdate(); 
+                    
+                    JOptionPane.showMessageDialog(frame, "Data berhasil dihapus!");
+                    
+                    // Bersihkan form & refresh tabel
+                    tId.setText(""); tJudul.setText(""); tKuota.setText(""); tHarga.setText("");
+                    loadDataToTable(model);
+                    
+                } catch(Exception ex) { 
+                    JOptionPane.showMessageDialog(frame, "Error Hapus: " + ex.getMessage()); 
+                }
+            }
         });
 
         formCard.add(inputGrid, BorderLayout.CENTER);
