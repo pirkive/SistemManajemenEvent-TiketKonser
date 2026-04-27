@@ -411,7 +411,7 @@ public class MainGUI {
                             "------------------------------------------\n" +
                             " STATUS        : LUNAS / PAID\n" +
                             "==========================================\n" +
-                            "      ENJOY THE SHOW, %s!      \n" +
+                            "          ENJOY THE SHOW, %s!      \n" +
                             "==========================================\n",
                             antrean, waktu, ticketCode, evt.getTitle(), qty, 
                             selectedPayment, totalTagihan, activeUser.getUsername().toUpperCase()
