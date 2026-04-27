@@ -548,46 +548,58 @@ public class MainGUI {
         // Pasang aksi admin 
         bAdd.addActionListener(e -> executeAdminQuery("INSERT INTO events (title, quota, price, event_id) VALUES (?, ?, ?, ?)", tJudul, tKuota, tHarga, tId, model, frame, "ditambah"));
         bUpd.addActionListener(e -> executeAdminQuery("UPDATE events SET title=?, quota=?, price=? WHERE event_id=?", tJudul, tKuota, tHarga, tId, model, frame, "diupdate"));
-        // --- Bagian Hapus Data dengan Warning ---
-        bDel.addActionListener(e -> {
-            String id = tId.getText();
-            String judul = tJudul.getText();
+        // --- Bagian Hapus Data dengan Perbaikan Foreign Key ---
+bDel.addActionListener(e -> {
+    String id = tId.getText();
+    String judul = tJudul.getText();
 
-            // Cek apakah ada data yang dipilih
-            if (id.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Pilih data di tabel yang ingin dihapus!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-                return;
+    // Cek apakah ada data yang dipilih
+    if (id.isEmpty()) {
+        JOptionPane.showMessageDialog(frame, "Pilih data di tabel yang ingin dihapus!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // Tampilkan dialog konfirmasi
+    int confirm = JOptionPane.showConfirmDialog(
+        frame, 
+        "Apakah Anda yakin ingin menghapus event: " + judul + "?\nSemua riwayat transaksi terkait juga akan dihapus.", 
+        "Konfirmasi Hapus", 
+        JOptionPane.YES_NO_OPTION, 
+        JOptionPane.WARNING_MESSAGE
+    );
+
+    // Jika pilih YES, eksekusi hapus
+    if (confirm == JOptionPane.YES_OPTION) {
+        try (Connection c = DatabaseConfig.getConnection()) {
+            
+            // 1. Hapus transaksi yang merujuk ke event ini dulu (mengatasi FK constraint)
+            String sqlTransaksi = "DELETE FROM transactions WHERE event_id=?";
+            try (PreparedStatement p1 = c.prepareStatement(sqlTransaksi)) {
+                p1.setString(1, id);
+                p1.executeUpdate();
             }
 
-            // Tampilkan dialog konfirmasi
-            int confirm = JOptionPane.showConfirmDialog(
-                frame, 
-                "Apakah Anda yakin ingin menghapus event: " + judul + "?", 
-                "Konfirmasi Hapus", 
-                JOptionPane.YES_NO_OPTION, 
-                JOptionPane.WARNING_MESSAGE
-            );
-
-            // Jika pilih YES, eksekusi hapus
-            if (confirm == JOptionPane.YES_OPTION) {
-                try (Connection c = DatabaseConfig.getConnection(); 
-                     PreparedStatement p = c.prepareStatement("DELETE FROM events WHERE event_id=?")) {
-                    
-                    p.setString(1, id); 
-                    p.executeUpdate(); 
-                    
-                    JOptionPane.showMessageDialog(frame, "Data berhasil dihapus!");
-                    
-                    // Bersihkan form & refresh tabel
-                    tId.setText(""); tJudul.setText(""); tKuota.setText(""); tHarga.setText("");
-                    loadDataToTable(model);
-                    
-                } catch(Exception ex) { 
-                    JOptionPane.showMessageDialog(frame, "Error Hapus: " + ex.getMessage()); 
-                }
+            // 2. Baru hapus data event-nya
+            String sqlEvent = "DELETE FROM events WHERE event_id=?";
+            try (PreparedStatement p2 = c.prepareStatement(sqlEvent)) {
+                p2.setString(1, id); 
+                p2.executeUpdate(); 
             }
-        });
-
+            
+            JOptionPane.showMessageDialog(frame, "Data berhasil dihapus!");
+            
+            // Bersihkan form & refresh tabel
+            tId.setText(""); 
+            tJudul.setText(""); 
+            tKuota.setText(""); 
+            tHarga.setText("");
+            loadDataToTable(model);
+            
+        } catch(Exception ex) { 
+            JOptionPane.showMessageDialog(frame, "Error Hapus: " + ex.getMessage()); 
+        }
+    }
+});
         formCard.add(inputGrid, BorderLayout.CENTER);
         formCard.add(btnPanel, BorderLayout.SOUTH);
 
